@@ -1,0 +1,22 @@
+﻿@page "/"
+
+<h1>Hello, world!</h1>
+
+@foreach (var topStory in TopStories)
+{
+    <h4>@topStory.title</h4>
+}
+
+@code
+{
+    [Inject] public HackerNewsApiService ApiService { get; set; } = null!;
+
+    public IList<int> TopStoryIds { get; set; } = new List<int>();
+    public IList<FeedItem> TopStories { get; set; } = new List<FeedItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        TopStoryIds = await ApiService.GetTopStoryIds();
+        TopStories = await ApiService.GetFeedItemDetails(TopStoryIds);
+    }
+}
