@@ -1,26 +1,60 @@
 ﻿@page "/"
 @page "/page/{Page:int}"
 
-<h1>Hello, world!</h1>
+<MudText Typo="Typo.h3">@DateTime.Now.ToString("D")</MudText>
 
-@foreach (var topStory in TopStories)
-{
-    <h4>@topStory.title</h4>
-}
+<MudContainer Class="mt-4">
+    @if (!TopStories.Any())
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            <MudSkeleton Class="mt-4" Width="80%"/>
+            <MudSkeleton Width="50%"/>
+        }
+    }
+    else
+    {
+        foreach (var topStory in TopStories)
+        {
+            <MudStack Row Class="mt-4">
+                <MudLink Href="@topStory.url">@topStory.title</MudLink>
+                @if (topStory.Link != null)
+                {
+                    <MudText Typo="Typo.body2">(@topStory.Link.Host)</MudText>
+                }
+            </MudStack>
+
+            <a href="@($"item/{topStory.id}")" target="_self">
+                <MudText>@topStory.score points by @topStory.by at @topStory.time.ToLocalDateTime()</MudText>
+            </a>
+        }
+
+        <MudPagination Class="d-flex my-16 justify-center" SelectedChanged="PageChanged" Color="Color.Primary" Count="25"/>
+    }
+</MudContainer>
 
 @code
 {
-    [Inject] public HackerNewsApiService ApiService { get; set; } = null!;
+    [Inject]
+    public HackerNewsApiService ApiService { get; set; } = null!;
 
-    [Parameter] public int? Page { get; set; }
+    [Inject]
+    public NavigationManager NavMan { get; set; } = null!;
+
+    [Parameter]
+    public int Page { get; set; } = 1;
+
     public IEnumerable<int> TopStoryIds { get; set; } = new List<int>();
     public IEnumerable<FeedItem> TopStories { get; set; } = new List<FeedItem>();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        Page ??= 1;
-
-        TopStoryIds = await ApiService.GetTopStoryIds(Page.Value);
+        TopStoryIds = await ApiService.GetTopStoryIds(Page);
         TopStories = await ApiService.GetFeedItemDetails(TopStoryIds);
+    }
+
+    private void PageChanged(int i)
+    {
+        NavMan.NavigateTo($"page/{i}");
     }
 }

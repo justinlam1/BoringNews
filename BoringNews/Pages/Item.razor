@@ -6,11 +6,13 @@
 }
 else
 {
-    <h3>
+    <MudText Typo="Typo.h4">
         <a href="@FeedItem.url" target="_blank">@FeedItem.title</a>
-    </h3>
-    <h4>Submitted at @FeedItem.time.ToLocalDateTime(); by @FeedItem.by</h4>
-    <h4>@FeedItem.score points</h4>
+    </MudText>
+    <MudText Typo="Typo.subtitle1">Submitted at @FeedItem.time.ToLocalDateTime(); by @FeedItem.by</MudText>
+    <MudText Typo="Typo.subtitle2">@FeedItem.score points</MudText>
+    
+    <MudDivider Class="my-6" />
                         
     @foreach (var comment in Comments)
     {

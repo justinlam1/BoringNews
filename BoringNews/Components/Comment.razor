@@ -1,6 +1,8 @@
 <div style="padding-left: 25px">
-    <p>@FeedItem.by • @FeedItem.time.ToLocalDateTime()</p>
+    <MudText Typo="Typo.subtitle1">@FeedItem.by • @FeedItem.time.ToLocalDateTime()</MudText>
     <p>@FeedItem.RenderText</p>
+    
+    <MudDivider Class="my-4" />
 
     @foreach (var comment in Subcomments)
     {
