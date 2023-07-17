@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components;
 
 namespace BoringNews;
 
@@ -26,7 +27,7 @@ public class HackerNewsApiService
         return result;
     }
 
-    private async Task<FeedItem> GetFeedItemDetails(int itemId)
+    public async Task<FeedItem> GetFeedItemDetails(int itemId)
     {
         var itemDetails = await _client.GetFromJsonAsync<FeedItem>($"item/{itemId}.json");
         
@@ -45,7 +46,7 @@ public class HackerNewsApiService
         {
             var itemDetail = await GetFeedItemDetails(itemId);
             itemDetailsList.Add(itemDetail);
-        }
+        }   
 
         return itemDetailsList;
     }
@@ -53,7 +54,7 @@ public class HackerNewsApiService
 
 public record FeedItem(
     int id,
-    bool deleted,
+    bool? deleted,
     string type,
     string by,
     int time,
@@ -61,11 +62,14 @@ public record FeedItem(
     bool dead,
     int parent,
     int poll,
-    int[] kids,
+    int[]? kids,
     string url,
     int score,
     string title,
     int[] parts,
     int descendants
-);
+)
+{
+    public MarkupString RenderText = (MarkupString)text;
+};
 

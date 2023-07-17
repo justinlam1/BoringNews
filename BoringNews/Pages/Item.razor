@@ -1,0 +1,41 @@
+@page "/Item/{ItemId:int}"
+
+@if (FeedItem is null)
+{
+    <h3>Loading...</h3>
+}
+else
+{
+    <h3>
+        <a href="@FeedItem.url" target="_blank">@FeedItem.title</a>
+    </h3>
+    <h4>Submitted at @FeedItem.time.ToLocalDateTime(); by @FeedItem.by</h4>
+    <h4>@FeedItem.score points</h4>
+                        
+    @foreach (var comment in Comments)
+    {
+        <Comment FeedItem="@comment" />
+    }
+}
+
+
+@code {
+
+    [Parameter] public int ItemId { get; set; }
+
+    [Inject] public HackerNewsApiService ApiService { get; set; } = null!;
+
+    public FeedItem? FeedItem { get; set; }
+    public IEnumerable<FeedItem> Comments { get; set; } = new List<FeedItem>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        FeedItem = await ApiService.GetFeedItemDetails(ItemId);
+
+        if (FeedItem.kids != null && FeedItem.kids.Any())
+        {
+            Comments = await ApiService.GetFeedItemDetails(FeedItem.kids);
+        }
+    }
+
+}

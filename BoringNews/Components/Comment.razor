@@ -1,0 +1,28 @@
+<div style="padding-left: 25px">
+    <p>@FeedItem.by • @FeedItem.time.ToLocalDateTime()</p>
+    <p>@FeedItem.RenderText</p>
+
+    @foreach (var comment in Subcomments)
+    {
+        <Comment FeedItem="@comment"/>
+    }
+</div>
+
+
+@code {
+
+    [Parameter, EditorRequired] public FeedItem FeedItem { get; set; }
+
+    [Inject] public HackerNewsApiService ApiService { get; set; } = null!;
+
+    public IEnumerable<FeedItem> Subcomments { get; set; } = new List<FeedItem>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (FeedItem.kids != null && FeedItem.kids.Any())
+        {
+            Subcomments = await ApiService.GetFeedItemDetails(FeedItem.kids);
+        }
+    }
+
+}
