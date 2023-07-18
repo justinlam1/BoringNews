@@ -9,26 +9,38 @@ else
     <MudText Typo="Typo.h4">
         <a href="@FeedItem.url" target="_blank">@FeedItem.title</a>
     </MudText>
-    <MudText Typo="Typo.subtitle1">Submitted at @FeedItem.time.ToLocalDateTime(); by @FeedItem.by</MudText>
+    <MudText Typo="Typo.subtitle1">Submitted at @FeedItem.time.ToLocalDateTime() by @FeedItem.by</MudText>
     <MudText Typo="Typo.subtitle2">@FeedItem.score points</MudText>
-    
-    <MudDivider Class="my-6" />
-                        
-    @foreach (var comment in Comments)
-    {
-        <Comment FeedItem="@comment" />
-    }
+
+    <MudTreeView T="@FeedItem" Items="Comments" ServerData="LoadServerData">
+        <ItemTemplate>
+            <MudTreeViewItem @bind-Expanded="@context.IsExpanded" Items="@context.SubItems">
+                <Content>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">@context.by • @context.time.ToLocalDateTime()</MudText>
+                        <p>@context.RenderText</p>
+
+                        <Comment FeedItem="@context"></Comment>
+
+                        <MudDivider Class="my-4"/>
+                    </div>
+                </Content>
+            </MudTreeViewItem>
+        </ItemTemplate>
+    </MudTreeView>
 }
 
 
 @code {
 
-    [Parameter] public int ItemId { get; set; }
+    [Parameter]
+    public int ItemId { get; set; }
 
-    [Inject] public HackerNewsApiService ApiService { get; set; } = null!;
+    [Inject]
+    public HackerNewsApiService ApiService { get; set; } = null!;
 
     public FeedItem? FeedItem { get; set; }
-    public IEnumerable<FeedItem> Comments { get; set; } = new List<FeedItem>();
+    public HashSet<FeedItem> Comments { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -36,8 +48,15 @@ else
 
         if (FeedItem.kids != null && FeedItem.kids.Any())
         {
-            Comments = await ApiService.GetFeedItemDetails(FeedItem.kids);
+            var result = await ApiService.GetFeedItemDetails(FeedItem.kids);
+            Comments = result.ToHashSet();
         }
+    }
+
+    private async Task<HashSet<FeedItem>> LoadServerData(FeedItem feedItem)
+    {
+        var result = await ApiService.GetFeedItemDetails(FeedItem.kids);
+        return result.ToHashSet();
     }
 
 }

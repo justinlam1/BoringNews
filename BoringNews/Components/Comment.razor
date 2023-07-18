@@ -1,4 +1,4 @@
-<div style="padding-left: 25px">
+<MudTreeViewItem T="FeedItem" style="padding-left: 25px">
     <MudText Typo="Typo.subtitle1">@FeedItem.by • @FeedItem.time.ToLocalDateTime()</MudText>
     <p>@FeedItem.RenderText</p>
     
@@ -8,7 +8,7 @@
     {
         <Comment FeedItem="@comment"/>
     }
-</div>
+</MudTreeViewItem>
 
 
 @code {
